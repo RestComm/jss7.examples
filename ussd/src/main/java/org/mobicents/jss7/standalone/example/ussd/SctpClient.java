@@ -112,7 +112,7 @@ public class SctpClient extends AbstractSctpBase {
 		this.sctpManagement.setSingleThread(true);
 		this.sctpManagement.setConnectDelay(10000);
 		this.sctpManagement.start();
-		this.sctpManagement.removeAllResourses();		
+		this.sctpManagement.removeAllResourses();
 
 		// 1. Create SCTP Association
 		sctpManagement.addAssociation(CLIENT_IP, CLIENT_PORT, SERVER_IP, SERVER_PORT, CLIENT_ASSOCIATION_NAME,
@@ -125,7 +125,7 @@ public class SctpClient extends AbstractSctpBase {
 		this.clientM3UAMgmt = new M3UAManagement("Client");
 		this.clientM3UAMgmt.setTransportManagement(this.sctpManagement);
 		this.clientM3UAMgmt.start();
-		//this.clientM3UAMgmt.removeAllResourses();
+		// this.clientM3UAMgmt.removeAllResourses();
 
 		// m3ua as create rc <rc> <ras-name>
 		RoutingContext rc = factory.createRoutingContext(new long[] { 100l });
@@ -410,8 +410,8 @@ public class SctpClient extends AbstractSctpBase {
 	 */
 	public void onProcessUnstructuredSSResponse(ProcessUnstructuredSSResponse procUnstrResInd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("Rx ProcessUnstructuredSSResponseIndication.  USSD String=%s",
-					procUnstrResInd.getUSSDString()));
+			logger.debug(String.format("Rx ProcessUnstructuredSSResponseIndication.  USSD String=%s", procUnstrResInd
+					.getUSSDString().getString()));
 		}
 	}
 
@@ -456,9 +456,28 @@ public class SctpClient extends AbstractSctpBase {
 	 */
 	public void onUnstructuredSSRequest(UnstructuredSSRequest unstrReqInd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("Rx UnstructuredSSRequestIndication. USSD String=%s ",
-					unstrReqInd.getUSSDString()));
+			logger.debug(String.format("Rx UnstructuredSSRequestIndication. USSD String=%s ", unstrReqInd
+					.getUSSDString().getString()));
 		}
+
+		MAPDialogSupplementary mapDialog = unstrReqInd.getMAPDialog();
+
+		try {
+			byte ussdDataCodingScheme = 0x0f;
+
+			USSDString ussdString = this.mapProvider.getMAPParameterFactory().createUSSDString("1", null);
+
+			AddressString msisdn = this.mapProvider.getMAPParameterFactory().createAddressString(
+					AddressNature.international_number, NumberingPlan.ISDN, "31628838002");
+
+			mapDialog.addUnstructuredSSResponse(unstrReqInd.getInvokeId(), ussdDataCodingScheme, ussdString);
+			mapDialog.send();
+
+		} catch (MAPException e) {
+			logger.error(String.format("Error while sending UnstructuredSSResponse for Dialog=%d",
+					mapDialog.getDialogId()));
+		}
+
 	}
 
 	/*
@@ -550,10 +569,10 @@ public class SctpClient extends AbstractSctpBase {
 
 		try {
 			client.initializeStack(ipChannelType);
-			
-			//Lets pause for 20 seconds so stacks are initialized properly
+
+			// Lets pause for 20 seconds so stacks are initialized properly
 			Thread.sleep(20000);
-			
+
 			client.initiateUSSD();
 
 		} catch (Exception e) {

@@ -166,6 +166,8 @@ public class SctpServer extends AbstractSctpBase {
 
 		// 7. Start ASP
 		serverM3UAMgmt.startAsp("RASP1");
+
+		logger.debug("[[[[[[[[[[    Started SctpServer       ]]]]]]]]]]");
 	}
 
 	/*
@@ -347,8 +349,8 @@ public class SctpServer extends AbstractSctpBase {
 	 */
 	public void onProcessUnstructuredSSRequest(ProcessUnstructuredSSRequest procUnstrReqInd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("onProcessUnstructuredSSRequestIndication for DialogId=%d", procUnstrReqInd
-					.getMAPDialog().getDialogId()));
+			logger.debug(String.format("onProcessUnstructuredSSRequestIndication for DialogId=%d. Ussd String=%s",
+					procUnstrReqInd.getMAPDialog().getDialogId(), procUnstrReqInd.getUSSDString().getString()));
 		}
 		try {
 			long invokeId = procUnstrReqInd.getInvokeId();
@@ -440,8 +442,8 @@ public class SctpServer extends AbstractSctpBase {
 	 */
 	public void onUnstructuredSSResponse(UnstructuredSSResponse unstrResInd) {
 		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("onUnstructuredSSResponseIndication for DialogId=%d", unstrResInd.getMAPDialog()
-					.getDialogId()));
+			logger.debug(String.format("onUnstructuredSSResponseIndication for DialogId=%d Ussd String=%s", unstrResInd
+					.getMAPDialog().getDialogId(), unstrResInd.getUSSDString().getString()));
 		}
 		try {
 			USSDString ussdStrObj = this.mapProvider.getMAPParameterFactory().createUSSDString("Your balance is 500");
@@ -527,7 +529,7 @@ public class SctpServer extends AbstractSctpBase {
 	public static void main(String[] args) {
 		System.out.println("*************************************");
 		System.out.println("***          SctpServer           ***");
-		System.out.println("*************************************");		
+		System.out.println("*************************************");
 		IpChannelType ipChannelType = IpChannelType.SCTP;
 		if (args.length >= 1 && args[0].toLowerCase().equals("tcp"))
 			ipChannelType = IpChannelType.TCP;

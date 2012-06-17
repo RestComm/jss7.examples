@@ -35,7 +35,7 @@
 		<commons.version>1.0.0.CR1</commons.version>
 	</properties>
 
-	<!-- declare our babies -->
+	<!-- declare dependencies -->
 	<dependencies>
 		<!-- ASN -->
 		<dependency>
